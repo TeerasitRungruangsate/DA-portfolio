@@ -1,0 +1,172 @@
+CREATE TABLE projects;
+USE projects;
+	-- Inspecting Data
+SELECT * FROM sales;
+	-- Data Cleaning
+DESCRIBE sales;
+-- Change The Name of COLLUMN
+ALTER TABLE sales
+CHANGE COLUMN cogs cost DOUBLE;  ### cogs = cost of goods
+
+-- Change the Type of COLLUMN 
+ALTER TABLE sales
+MODIFY COLUMN Sale_Time TIME;
+
+SELECT Sale_date FROM sales;
+UPDATE sales
+SET Sale_Date = CASE
+	WHEN Sale_Date LIKE '%/%' THEN date_format(str_to_date(Sale_Date,'%m/%d/%Y'),'%Y-%m-%d')
+ELSE NULL
+END;
+
+ALTER TABLE sales
+MODIFY COLUMN Sale_Date DATE;
+
+-- Finding NULL OR EMPTY Value
+SELECT * FROM sales
+WHERE Invoice_ID is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Branch is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE City is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Customer_Type is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Gender is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Product_line is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Unit_price is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Quantity is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Total is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Sale_Date is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Sale_Time is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Payment is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE cost is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE gross_margin_percentage is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE gross_income is NULL OR ' ';
+
+SELECT * FROM sales
+WHERE Rating is NULL OR ' ';
+
+-- Fiding Unique values
+SELECT DISTINCT Invoice_ID FROM sales;
+SELECT DISTINCT Branch FROM sales;
+SELECT DISTINCT City FROM sales;
+SELECT DISTINCT Customer_type FROM sales;
+SELECT DISTINCT Gender FROM sales;
+SELECT DISTINCT Product_line FROM sales;
+SELECT DISTINCT Unit_price FROM sales;
+SELECT DISTINCT Quantity FROM sales;
+SELECT DISTINCT Total FROM sales;
+SELECT DISTINCT Sale_Date FROM sales;
+SELECT DISTINCT Sale_Time FROM sales;
+SELECT DISTINCT Payment FROM sales;
+SELECT DISTINCT Cost FROM sales;
+SELECT DISTINCT gross_margin_percentage FROM sales; -- Everything had margin 4.76 percent
+SELECT DISTINCT gross_income FROM sales;
+SELECT DISTINCT Rating FROM sales;
+	-- Exploratory Data Analysis
+-- Q.1 : What is the average total amout spent by each customer type and gender
+SELECT customer_type, AVG(total) Average_total FROM sales
+GROUP BY customer_type
+ORDER BY Average_total DESC;
+
+SELECT gender, AVG(total) Average_total FROM sales
+GROUP BY gender
+ORDER BY Average_total DESC;
+
+-- Q.2 : What is the total sales for each gender and product line combination?
+SELECT Gender, Product_line, sum(Total) Total_sale FROM sales
+GROUP BY Gender,Product_line
+ORDER BY Total_sale DESC;
+
+-- Q.3 : What is the average unit price for each product line?
+SELECT Product_line, AVG(Unit_price) AVG_UnitPrice FROM sales
+GROUP BY Product_line
+ORDER BY AVG_UnitPrice DESC;
+
+-- Q.4 : Which cities are the biggest contributors to the overall sales?
+SELECT City, sum(total) Total_sale FROM sales
+GROUP BY City
+ORDER BY Total_sale DESC;
+
+-- Q.5 : Which product lines are the most popular among customers?
+SELECT Product_line,sum(total) total_sale FROM sales
+GROUP BY Product_line
+ORDER BY total_sale DESC;
+
+-- Q.6 : What is the satisfaction level of customers with the supermarket?
+SELECT
+		(SELECT COUNT(Rating) FROM sales WHERE Rating >7) AS 'High Level',
+		(SELECT COUNT(Rating) FROM sales WHERE Rating <5) AS 'Low Level',
+		(SELECT COUNT(Rating) FROM sales WHERE Rating BETWEEN 5 AND 7) AS "Medium Level";
+ 
+ -- Q.7 : What are the most popular product lines in the supermarket?
+ SELECT Product_line, sum(total) AS Total_Sale FROM sales
+ GROUP BY Product_line
+ ORDER BY Total_Sale DESC;
+
+-- Q.8 : What are the most profitable product lines in the supermarket?
+SELECT product_line,sum(gross_income) Profit FROM sales
+GROUP BY Product_line
+ORDER BY Profit DESC;
+
+-- Q.9 : What are the most popular payment methods used in the supermarket?
+ SELECT Payment, sum(total) AS Total_Sale FROM sales
+ GROUP BY Payment
+ ORDER BY Total_Sale DESC;
+ 
+ -- Q.10 : What are the average unit prices and quantities sold for each product line?
+SELECT Product_line,AVG(Unit_price) AS AVG_UnitPrice,AVG(Quantity) AS AVG_Quantity FROM sales
+GROUP BY Product_Line;
+
+-- Q.11 :  What are the average gross margins and gross incomes for each product line?
+SELECT Product_line,AVG(gross_margin_percentage) AS AVG_GrossMargin,AVG(gross_income) AS AVG_GrossIncome FROM sales
+GROUP BY Product_Line;
+
+-- Q.12 : What are the average customer ratings for each product line?
+SELECT Product_line,AVG(Rating) AS AVG_rating FROM sales
+GROUP BY Product_line
+ORDER BY AVG_rating DESC;
+
+-- Q.13 : What are the most popular branches of the supermarket in terms of sales and customer ratings?
+SELECT Branch,AVG(Rating) AS AVG_rating,sum(total) AS total_sale FROM sales
+GROUP BY Branch
+ORDER BY total_sale DESC;
+
+-- Q.14 : What are the most popular cities for the supermarket in terms of sales and customer ratings?
+SELECT City,AVG(Rating) AS AVG_rating,sum(total) AS total_sale FROM sales
+GROUP BY City
+ORDER BY total_sale DESC;
+
+-- Q.15 : What are the best sale each month base on product line?
+SELECT 
+	Product_line,
+	MONTHNAME(sale_date) AS Month_name,
+	sum(total) AS total_sale 
+FROM sales
+GROUP BY Product_line,Month_name
+ORDER BY total_sale DESC ,Month_name;
